@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://c35hpp42gmwj2"]
+
+[ext_resource type="Texture2D" uid="uid://bnsctnvht3v85" path="res://assets/controller/button_circle.png" id="1_eq701"]
+[ext_resource type="Script" uid="uid://ds6p4k6i5d1kp" path="res://scripts/controller.gd" id="1_um401"]
+
+[node name="controller" type="Control" unique_id=1324584855]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_um401")
+
+[node name="GridContainer" type="GridContainer" parent="." unique_id=1297113302]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GridContainer" unique_id=567418655]
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="GridContainer/HBoxContainer" unique_id=1602306174]
+custom_minimum_size = Vector2(250, 250)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_type_variation = &"FlatButton"
+theme_override_colors/icon_pressed_color = Color(1, 0, 0, 1)
+action_mode = 0
+icon = ExtResource("1_eq701")
+icon_alignment = 1
+expand_icon = true
