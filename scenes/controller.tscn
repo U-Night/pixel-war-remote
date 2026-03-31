@@ -2,6 +2,13 @@
 
 [ext_resource type="Texture2D" uid="uid://bnsctnvht3v85" path="res://assets/controller/button_circle.png" id="1_eq701"]
 [ext_resource type="Script" uid="uid://ds6p4k6i5d1kp" path="res://scripts/controller.gd" id="1_um401"]
+[ext_resource type="PackedScene" uid="uid://dmr0fcamx7t56" path="res://addons/virtual_joystick/virtual_joystick_scene.tscn" id="2_eq701"]
+[ext_resource type="Texture2D" uid="uid://bsimrkrrq6v3v" path="res://assets/controller/pin-icone.png" id="4_a3fk4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vx3wb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_swhsy"]
+bg_color = Color(0, 1, 0, 1)
 
 [node name="controller" type="Control" unique_id=1324584855]
 layout_mode = 3
@@ -12,27 +19,100 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_um401")
 
-[node name="GridContainer" type="GridContainer" parent="." unique_id=1297113302]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1408540842]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.07058824, 0.13333334, 0.25882354, 1)
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GridContainer" unique_id=567418655]
-layout_mode = 2
-size_flags_horizontal = 10
-size_flags_vertical = 3
+[node name="virtualJoystick" parent="." unique_id=1515829791 instance=ExtResource("2_eq701")]
+layout_mode = 1
+offset_left = 50.0
+offset_top = -398.0
+offset_right = 370.0
+offset_bottom = -86.0
 
-[node name="Button" type="Button" parent="GridContainer/HBoxContainer" unique_id=1602306174]
-custom_minimum_size = Vector2(250, 250)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-theme_type_variation = &"FlatButton"
-theme_override_colors/icon_pressed_color = Color(1, 0, 0, 1)
-action_mode = 0
-icon = ExtResource("1_eq701")
-icon_alignment = 1
-expand_icon = true
+[node name="playerId" type="Label" parent="." unique_id=1443152744]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 200
+text = "13"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="powerUp" type="Control" parent="." unique_id=601994384]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -184.0
+offset_top = -182.0
+offset_right = -50.0
+offset_bottom = -50.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="powerUpButton" type="TouchScreenButton" parent="powerUp" unique_id=1384992295]
+position = Vector2(-125, -180)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("1_eq701")
+
+[node name="ping" type="Control" parent="." unique_id=1883098159]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -252.0
+offset_top = 25.0
+offset_right = -92.0
+offset_bottom = 154.0
+grow_horizontal = 0
+
+[node name="pingButton" type="TouchScreenButton" parent="ping" unique_id=1931205029]
+texture_normal = ExtResource("1_eq701")
+
+[node name="TextureRect" type="TextureRect" parent="ping/pingButton" unique_id=464853332]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 31.0
+offset_right = -26.0
+offset_bottom = -31.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_a3fk4")
+expand_mode = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="ping" unique_id=1773361030]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -55.0
+offset_right = 3.0
+offset_bottom = 55.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_vx3wb")
+theme_override_styles/fill = SubResource("StyleBoxFlat_swhsy")
+fill_mode = 3
+show_percentage = false

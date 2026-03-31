@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://g0buf1nbx2ma"
-path="res://.godot/imported/button_circle_wide.png-295076cfb1097bd37f358c459a155954.ctex"
+uid="uid://bsimrkrrq6v3v"
+path="res://.godot/imported/pin-icone.png-688e49bf210f5e4b0395df34899e8990.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/controller/button_circle_wide.png"
-dest_files=["res://.godot/imported/button_circle_wide.png-295076cfb1097bd37f358c459a155954.ctex"]
+source_file="res://assets/controller/pin-icone.png"
+dest_files=["res://.godot/imported/pin-icone.png-688e49bf210f5e4b0395df34899e8990.ctex"]
 
 [params]
 
