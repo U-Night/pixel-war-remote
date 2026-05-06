@@ -28,28 +28,32 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.07058824, 0.13333334, 0.25882354, 1)
 
-[node name="virtualJoystick" parent="." unique_id=1515829791 instance=ExtResource("2_eq701")]
+[node name="virtualJoystick" parent="." unique_id=1515829791 unique_name_in_owner=true instance=ExtResource("2_eq701")]
 layout_mode = 1
-offset_left = 50.0
-offset_top = -398.0
-offset_right = 370.0
-offset_bottom = -86.0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -360.0
+offset_right = 380.0
+offset_bottom = -20.0
+grow_vertical = 0
 
-[node name="playerId" type="Label" parent="." unique_id=1443152744]
+[node name="playerId" type="Label" parent="." unique_id=1443152744 unique_name_in_owner=true]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -11.5
-offset_right = 20.0
-offset_bottom = 11.5
+offset_left = -150.0
+offset_top = -40.0
+offset_right = 150.0
+offset_bottom = 40.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 200
-text = "13"
+theme_override_font_sizes/font_size = 52
+text = "..."
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -60,42 +64,58 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -184.0
-offset_top = -182.0
-offset_right = -50.0
-offset_bottom = -50.0
+offset_left = -440.0
+offset_top = -440.0
+offset_right = -40.0
+offset_bottom = -40.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="powerUpButton" type="TouchScreenButton" parent="powerUp" unique_id=1384992295]
-position = Vector2(-125, -180)
-scale = Vector2(2, 2)
+[node name="powerUpButton" type="TextureButton" parent="powerUp" unique_id=1384992295]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture_normal = ExtResource("1_eq701")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="ping" type="Control" parent="." unique_id=1883098159]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -252.0
-offset_top = 25.0
-offset_right = -92.0
-offset_bottom = 154.0
+offset_left = -220.0
+offset_top = 30.0
+offset_right = -40.0
+offset_bottom = 210.0
 grow_horizontal = 0
 
-[node name="pingButton" type="TouchScreenButton" parent="ping" unique_id=1931205029]
-texture_normal = ExtResource("1_eq701")
-
-[node name="TextureRect" type="TextureRect" parent="ping/pingButton" unique_id=464853332]
+[node name="pingButton" type="TextureButton" parent="ping" unique_id=1931205029]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = 31.0
-offset_right = -26.0
-offset_bottom = -31.0
 grow_horizontal = 2
 grow_vertical = 2
+texture_normal = ExtResource("1_eq701")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="TextureRect" type="TextureRect" parent="ping/pingButton" unique_id=464853332]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = 30.0
+offset_right = -30.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("4_a3fk4")
 expand_mode = 1
 
@@ -106,13 +126,16 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -12.0
-offset_top = -55.0
-offset_right = 3.0
-offset_bottom = 55.0
+offset_left = 8.0
+offset_top = -70.0
+offset_right = 22.0
+offset_bottom = 70.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_vx3wb")
 theme_override_styles/fill = SubResource("StyleBoxFlat_swhsy")
 fill_mode = 3
 show_percentage = false
+
+[connection signal="pressed" from="powerUp/powerUpButton" to="." method="_on_power_up_pressed"]
+[connection signal="pressed" from="ping/pingButton" to="." method="_on_ping_pressed"]

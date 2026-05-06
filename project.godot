@@ -11,13 +11,29 @@ config_version=5
 [application]
 
 config/name="Pixel War Remote"
-run/main_scene="uid://c35hpp42gmwj2"
+run/main_scene="uid://cpjfndwd4tgot"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+NetworkManager="*res://scripts/network_manager.gd"
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=1280
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=6
 
 [dotnet]
 
 project/assembly_name="Pixel War Remote"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
 
 [physics]
 
@@ -27,3 +43,4 @@ project/assembly_name="Pixel War Remote"
 
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true

@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://cpjfndwd4tgot"]
+
+[ext_resource type="Script" uid="uid://d3m2hqp5s25ge" path="res://scripts/menu.gd" id="1_yqeox"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4h3mk"]
+bg_color = Color(0.29803923, 0.6156863, 0.36078432, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yqeox"]
+bg_color = Color(0.38431373, 0.78039217, 0.4627451, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[node name="menu" type="Control" unique_id=1339327853]
+layout_mode = 3
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yqeox")
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="." unique_id=279638249]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -356.0
+offset_right = 362.0
+grow_horizontal = 2
+grow_vertical = 2
+ratio = 0.45
+
+[node name="backgroundColor" type="ColorRect" parent="AspectRatioContainer" unique_id=1250057511]
+layout_mode = 2
+color = Color(0.8980392, 0.8980392, 0.9137255, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="AspectRatioContainer" unique_id=1104940869]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AspectRatioContainer/CenterContainer" unique_id=600162019]
+layout_mode = 2
+
+[node name="title" type="Label" parent="AspectRatioContainer/CenterContainer/VBoxContainer" unique_id=350452506]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 100
+text = "PIXEL WAR"
+
+[node name="space" type="Control" parent="AspectRatioContainer/CenterContainer/VBoxContainer" unique_id=825085749]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+
+[node name="LBLserv" type="Label" parent="AspectRatioContainer/CenterContainer/VBoxContainer" unique_id=2087665158]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 50
+text = "Adresse du serveur :"
+
+[node name="serverAddress" type="LineEdit" parent="AspectRatioContainer/CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "127.0.0.1"
+placeholder_text = "ex: 192.168.1.100"
+alignment = 1
+
+[node name="space2" type="Control" parent="AspectRatioContainer/CenterContainer/VBoxContainer" unique_id=1658461432]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="joinButton" type="Button" parent="AspectRatioContainer/CenterContainer/VBoxContainer" unique_id=1843682884]
+layout_mode = 2
+theme_override_font_sizes/font_size = 65
+theme_override_styles/normal = SubResource("StyleBoxFlat_4h3mk")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_yqeox")
+text = "Rejoindre"
+
+[connection signal="pressed" from="AspectRatioContainer/CenterContainer/VBoxContainer/joinButton" to="." method="_on_join_button_pressed"]
