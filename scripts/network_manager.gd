@@ -244,11 +244,25 @@ func send_packet(type: PacketType, data: String) -> void:
 
 	var packet_bytes = _serialize_packet(type, data)
 
-	# Encapsuler avec le MessageFramer: [4B longueur LE] + [packet bytes en UTF-8 string]
-	# Le serveur C# fait: Encoding.UTF8.GetString(serialized) puis SendAsync(textMessage)
-	# Donc on doit envoyer les bytes du packet convertis en string UTF-8 via le framer
-	var packet_as_string = packet_bytes.get_string_from_utf8()
-	_send_framed_string(packet_as_string)
+	# Envoyer les bytes bruts du packet avec le préfixe de longueur.
+	# Le serveur C# lit [4B longueur LE] + [N bytes payload] via TcpMessageFramer,
+	# puis fait Encoding.UTF8.GetBytes(message) pour reconstituer les bytes du Packet.
+	# On doit donc envoyer les bytes tels quels — la conversion GDScript
+	# get_string_from_utf8() corrompt les octets binaires (type_size, data_size).
+	_send_framed_bytes(packet_bytes)
+
+
+## Envoie des bytes bruts avec le préfixe de longueur (pour les paquets binaires)
+func _send_framed_bytes(payload: PackedByteArray) -> void:
+	if _tcp == null or _status != StreamPeerTCP.Status.STATUS_CONNECTED:
+		return
+
+	var length_prefix = PackedByteArray()
+	length_prefix.resize(4)
+	length_prefix.encode_s32(0, payload.size())
+
+	_tcp.put_data(length_prefix)
+	_tcp.put_data(payload)
 
 
 ## Sérialise un packet au format binaire identique au C#
