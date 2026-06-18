@@ -24,10 +24,11 @@ func _ready() -> void:
 	NetworkManager.disconnected.connect(_on_network_disconnected)
 	NetworkManager.packet_received.connect(_on_packet_received)
 
-	# Se connecter au serveur
-	NetworkManager.connect_to_server()
-
-	player_id_label.text = "..."
+	# La connexion est deja etablie par le menu, afficher l'ID recu
+	if NetworkManager.player_id >= 0:
+		player_id_label.text = str(NetworkManager.player_id)
+	else:
+		player_id_label.text = "..."
 
 
 func _process(delta: float) -> void:
@@ -56,7 +57,6 @@ func _send_joystick() -> void:
 		else:
 			print("[Controller] Node UDPClient introuvable, impossible d'envoyer le joystick")
 		
-
 
 # ──── Callbacks boutons ────
 
@@ -90,8 +90,9 @@ func _on_network_connected(pid: int) -> void:
 
 
 func _on_network_disconnected() -> void:
-	player_id_label.text = "..."
 	print("[Controller] Déconnecté du serveur")
+	NetworkManager.pending_error = "Connexion au serveur perdue."
+	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 
 func _on_packet_received(type: String, data: String) -> void:

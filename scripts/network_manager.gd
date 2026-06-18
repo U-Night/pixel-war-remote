@@ -6,6 +6,7 @@ extends Node
 # ──── Signaux ────
 signal connected(player_id: int)
 signal disconnected
+signal connection_failed
 signal packet_received(type: String, data: String)
 
 # ──── Configuration ────
@@ -15,6 +16,7 @@ var server_port: int = 6967
 # ──── État ────
 var player_id: int = -1
 var server_connected: bool = false
+var pending_error: String = ""  # Message d'erreur a afficher au retour au menu
 
 # ──── Internes ────
 var _tcp: StreamPeerTCP = null
@@ -72,6 +74,7 @@ func connect_to_server(address: String = "", port: int = 0) -> void:
 	var err = _tcp.connect_to_host(server_address, server_port)
 	if err != OK:
 		printerr("[NetworkManager] Erreur de connexion: ", err)
+		connection_failed.emit()
 		return
 
 	_handshake_done = false
@@ -110,6 +113,14 @@ func _process(_delta: float) -> void:
 	# Détection de connexion établie
 	if _status != StreamPeerTCP.Status.STATUS_CONNECTED and new_status == StreamPeerTCP.Status.STATUS_CONNECTED:
 		print("[NetworkManager] TCP connecté, attente du handshake...")
+
+	# Détection d'erreur de connexion (serveur introuvable / refus)
+	if _status == StreamPeerTCP.Status.STATUS_CONNECTING and new_status == StreamPeerTCP.Status.STATUS_ERROR:
+		print("[NetworkManager] Erreur de connexion au serveur")
+		_tcp = null
+		_status = StreamPeerTCP.Status.STATUS_NONE
+		connection_failed.emit()
+		return
 
 	# Détection de déconnexion
 	if _status == StreamPeerTCP.Status.STATUS_CONNECTED and new_status != StreamPeerTCP.Status.STATUS_CONNECTED:

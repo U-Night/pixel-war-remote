@@ -85,4 +85,17 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_4h3mk")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_yqeox")
 text = "Rejoindre"
 
+[node name="space3" type="Control" parent="AspectRatioContainer/CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="errorLabel" type="Label" parent="AspectRatioContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.9, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 30
+text = ""
+horizontal_alignment = 1
+visible = false
+
 [connection signal="pressed" from="AspectRatioContainer/CenterContainer/VBoxContainer/joinButton" to="." method="_on_join_button_pressed"]
