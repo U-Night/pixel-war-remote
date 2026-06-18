@@ -95,12 +95,38 @@ func _on_network_disconnected() -> void:
 	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 
-func _on_packet_received(type: String, data: String) -> void:
+func _on_packet_received(type: int, data: String) -> void:
 	print("[Controller] Packet reçu: ", type, " -> ", data)
+	
+	# Détecter les messages d'élimination / victoire
+	if type == NetworkManager.PacketType.Message and data != "":
+		var json = JSON.parse_string(data)
+		if json is Dictionary:
+			var msg_type = json.get("type", "")
+			if msg_type == "eliminated" or msg_type == "victory":
+				NetworkManager.game_over_type = msg_type
+				_going_to_game_over = true
+				get_tree().change_scene_to_file("res://scenes/game_over.tscn")
+
+
+# ──── DEBUG : à retirer avant la release ────
+var _going_to_game_over: bool = false
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_E:
+			NetworkManager.game_over_type = "eliminated"
+			_going_to_game_over = true
+			get_tree().change_scene_to_file("res://scenes/game_over.tscn")
+		elif event.keycode == KEY_V:
+			NetworkManager.game_over_type = "victory"
+			_going_to_game_over = true
+			get_tree().change_scene_to_file("res://scenes/game_over.tscn")
 
 
 # ──── Nettoyage ────
 
 func _exit_tree() -> void:
-	# Déconnecter proprement en quittant la scène
-	NetworkManager.disconnect_from_server()
+	# Ne pas déconnecter si on va vers l'écran game_over (il gère sa propre déconnexion)
+	if not _going_to_game_over:
+		NetworkManager.disconnect_from_server()

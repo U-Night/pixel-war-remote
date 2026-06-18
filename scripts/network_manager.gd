@@ -17,6 +17,7 @@ var server_port: int = 6967
 var player_id: int = -1
 var server_connected: bool = false
 var pending_error: String = ""  # Message d'erreur a afficher au retour au menu
+var game_over_type: String = ""  # "eliminated" ou "victory" — contexte pour l'écran game_over
 
 # ──── Internes ────
 var _tcp: StreamPeerTCP = null
