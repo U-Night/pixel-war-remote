@@ -5,4 +5,9 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>PixelWarRemote</RootNamespace>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimmerRootDescriptor>false</TrimmerRootDescriptor>
+  </PropertyGroup>
 </Project>
