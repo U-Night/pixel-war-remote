@@ -19,6 +19,10 @@ public partial class UDPClient : Node {
         _serverEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6967); 
     }
 
+    public void SetServerEndpoint(string host, int port) {
+        _serverEndpoint = new IPEndPoint(IPAddress.Parse(host), port);
+    }
+
     // Cette méthode agit comme une "passerelle" simple pour GDScript
     // GDScript ne connaît pas IPEndPoint ou Task, donc on lui donne une méthode classique
     public void SendInputFromGDScript(float x, float y, uint userId) {

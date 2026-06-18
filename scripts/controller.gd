@@ -43,6 +43,9 @@ func _ready() -> void:
 	else:
 		player_id_label.text = "..."
 
+	var udp_client = get_node("UDPClient") # adapte le chemin
+	udp_client.SetServerEndpoint(NetworkManager.server_address, NetworkManager.server_port)
+
 
 func _process(delta: float) -> void:
 	if not NetworkManager.server_connected:

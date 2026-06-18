@@ -79,7 +79,8 @@ texture_normal = ExtResource("1_eq701")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="powerUpIcon" type="TextureRect" parent="powerUp/powerUpButton"]
+[node name="powerUpIcon" type="TextureRect" parent="powerUp/powerUpButton" unique_id=55245231]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -92,7 +93,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 expand_mode = 1
-visible = false
 
 [node name="ping" type="Control" parent="." unique_id=1883098159]
 layout_mode = 1
