@@ -16,8 +16,6 @@ stages:
 export_android:
   stage: export
   image: barichello/godot-ci:mono-${GODOT_VERSION}
-  tags:
-    - docker
   before_script:
     # --- Export templates (Mono) ---
     - mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
@@ -89,8 +87,6 @@ export_android:
 upload_package:
   stage: upload
   image: curlimages/curl:latest
-  tags:
-    - docker
   needs:
     - export_android
   script:
