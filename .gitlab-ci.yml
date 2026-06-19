@@ -103,16 +103,32 @@ export_android:
       fi
       echo "Build version: $(cat android/.build_version)"
   script:
-    # 1) Let Godot import all assets (first run in editor mode, then quit)
-    #    This step may overwrite editor_settings, so we write ours AFTER
+    # 1) Let Godot import all assets (creates editor_settings-4.tres with correct format)
     - godot --headless --quit --editor 2>&1 | tail -5 || true
 
     # 2) Build the .NET solution
     - dotnet restore || true
 
-    # 3) Write editor settings AFTER editor import (editor overwrites the file on quit)
+    # 3) Inject keystore + SDK settings into the editor settings file that Godot created
     #    Then export the APK — all in one block so variables persist
     - |
+      SETTINGS_FILE="$HOME/.config/godot/editor_settings-4.tres"
+
+      # Find the settings file (Godot may use a different name)
+      if [ ! -f "$SETTINGS_FILE" ]; then
+        echo "Looking for editor settings file…"
+        find "$HOME/.config/godot" -name "editor_settings*" -type f 2>/dev/null
+        SETTINGS_FILE=$(find "$HOME/.config/godot" -name "editor_settings*" -type f 2>/dev/null | head -1)
+      fi
+
+      if [ -z "$SETTINGS_FILE" ] || [ ! -f "$SETTINGS_FILE" ]; then
+        echo "❌ No editor settings file found, cannot configure keystore"
+        exit 1
+      fi
+
+      echo "Found settings file: $SETTINGS_FILE"
+
+      # Determine keystore paths and export mode
       if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
         KS_PATH="$HOME/.android/release.keystore"
         KS_USER="${RELEASE_KEYSTORE_USER:-release}"
@@ -125,21 +141,23 @@ export_android:
         EXPORT_MODE="--export-debug"
       fi
 
-      cat > $HOME/.config/godot/editor_settings-4.tres <<EOFRES
-      [gd_resource type="EditorSettings" format=3]
+      # Append keystore settings to the existing file
+      # (the file already has correct [gd_resource] header from Godot)
+      echo 'export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"' >> "$SETTINGS_FILE"
+      echo 'export/android/android_sdk_path = "/usr/lib/android-sdk"' >> "$SETTINGS_FILE"
+      echo "export/android/debug_keystore = \"${KS_PATH}\"" >> "$SETTINGS_FILE"
+      echo "export/android/debug_keystore_user = \"${KS_USER}\"" >> "$SETTINGS_FILE"
+      echo "export/android/debug_keystore_pass = \"${KS_PASS}\"" >> "$SETTINGS_FILE"
+      echo "export/android/keystore/release = \"${KS_PATH}\"" >> "$SETTINGS_FILE"
+      echo "export/android/keystore/release_user = \"${KS_USER}\"" >> "$SETTINGS_FILE"
+      echo "export/android/keystore/release_password = \"${KS_PASS}\"" >> "$SETTINGS_FILE"
 
-      [resource]
-      export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"
-      export/android/android_sdk_path = "/usr/lib/android-sdk"
-      export/android/debug_keystore = "${KS_PATH}"
-      export/android/debug_keystore_user = "${KS_USER}"
-      export/android/debug_keystore_pass = "${KS_PASS}"
-      export/android/keystore/release = "${KS_PATH}"
-      export/android/keystore/release_user = "${KS_USER}"
-      export/android/keystore/release_password = "${KS_PASS}"
-      EOFRES
+      echo "--- Editor settings (last 15 lines) ---"
+      tail -15 "$SETTINGS_FILE"
+      echo "---"
 
-      echo "Editor settings written (keystore: ${KS_PATH}, mode: ${EXPORT_MODE})"
+      echo "Keystore file exists: $(ls -la ${KS_PATH} 2>/dev/null || echo 'NOT FOUND!')"
+      echo "Export mode: ${EXPORT_MODE}"
 
       mkdir -p build/android
       godot --headless ${EXPORT_MODE} "Android" build/android/${EXPORT_NAME}.apk
