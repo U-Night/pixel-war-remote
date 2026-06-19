@@ -42,15 +42,12 @@ export_android:
     - mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono/*
         ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono/ 2>/dev/null || true
 
-    # --- Keystore setup + Godot editor settings ---
-    - mkdir -p ~/.android ~/.config/godot
+    # --- Keystore setup ---
+    - mkdir -p $HOME/.android $HOME/.config/godot
     - |
       if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
         echo "Using release keystore from CI/CD variable"
         echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > $HOME/.android/release.keystore
-        KEYSTORE_PATH="$HOME/.android/release.keystore"
-        KEYSTORE_USER="${RELEASE_KEYSTORE_USER:-release}"
-        KEYSTORE_PASS="${RELEASE_KEYSTORE_PASSWORD:-}"
       else
         echo "No release keystore found, generating debug keystore"
         keytool -keyalg RSA -genkeypair \
@@ -60,28 +57,7 @@ export_android:
           -storepass android \
           -dname "CN=Android Debug,O=Android,C=US" \
           -validity 9999 -deststoretype pkcs12
-        KEYSTORE_PATH="$HOME/.android/debug.keystore"
-        KEYSTORE_USER="androiddebugkey"
-        KEYSTORE_PASS="android"
       fi
-
-      # Write Godot editor settings (proper .tres format)
-      cat > $HOME/.config/godot/editor_settings-4.tres <<EOFRES
-      [gd_resource type="EditorSettings" format=3]
-
-      [resource]
-      export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"
-      export/android/android_sdk_path = "/usr/lib/android-sdk"
-      export/android/debug_keystore = "${KEYSTORE_PATH}"
-      export/android/debug_keystore_user = "${KEYSTORE_USER}"
-      export/android/debug_keystore_pass = "${KEYSTORE_PASS}"
-      export/android/keystore/release = "${KEYSTORE_PATH}"
-      export/android/keystore/release_user = "${KEYSTORE_USER}"
-      export/android/keystore/release_password = "${KEYSTORE_PASS}"
-      EOFRES
-
-      echo "Editor settings written with keystore: ${KEYSTORE_PATH}"
-      cat $HOME/.config/godot/editor_settings-4.tres
 
     # --- Install the Android build template (needed for gradle builds) ---
     # Godot expects the template in res://android/build/ (same as editor's "Install Android Build Template")
@@ -104,7 +80,6 @@ export_android:
       fi
 
       echo "✅ Android build template installed"
-      ls android/build/build.gradle 2>/dev/null && echo "build.gradle found" || echo "⚠️ build.gradle missing!"
 
       # Create .build_version file (Godot checks this to verify template version)
       if [ -f "${TEMPLATE_DIR}/version.txt" ]; then
@@ -116,20 +91,46 @@ export_android:
       fi
       echo "Build version: $(cat android/.build_version)"
   script:
-    # Let Godot import all assets (first run in editor mode, then quit)
+    # 1) Let Godot import all assets (first run in editor mode, then quit)
+    #    This step may overwrite editor_settings, so we write ours AFTER
     - godot --headless --quit --editor 2>&1 | tail -5 || true
 
-    # Build the .NET solution
+    # 2) Build the .NET solution
     - dotnet restore || true
 
-    # Export the APK
-    - mkdir -p build/android
+    # 3) Write editor settings AFTER editor import (editor overwrites the file on quit)
+    #    Then export the APK — all in one block so variables persist
     - |
       if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
-        godot --headless --export-release "Android" build/android/${EXPORT_NAME}.apk
+        KS_PATH="$HOME/.android/release.keystore"
+        KS_USER="${RELEASE_KEYSTORE_USER:-release}"
+        KS_PASS="${RELEASE_KEYSTORE_PASSWORD:-}"
+        EXPORT_MODE="--export-release"
       else
-        godot --headless --export-debug "Android" build/android/${EXPORT_NAME}.apk
+        KS_PATH="$HOME/.android/debug.keystore"
+        KS_USER="androiddebugkey"
+        KS_PASS="android"
+        EXPORT_MODE="--export-debug"
       fi
+
+      cat > $HOME/.config/godot/editor_settings-4.tres <<EOFRES
+      [gd_resource type="EditorSettings" format=3]
+
+      [resource]
+      export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"
+      export/android/android_sdk_path = "/usr/lib/android-sdk"
+      export/android/debug_keystore = "${KS_PATH}"
+      export/android/debug_keystore_user = "${KS_USER}"
+      export/android/debug_keystore_pass = "${KS_PASS}"
+      export/android/keystore/release = "${KS_PATH}"
+      export/android/keystore/release_user = "${KS_USER}"
+      export/android/keystore/release_password = "${KS_PASS}"
+      EOFRES
+
+      echo "Editor settings written (keystore: ${KS_PATH}, mode: ${EXPORT_MODE})"
+
+      mkdir -p build/android
+      godot --headless ${EXPORT_MODE} "Android" build/android/${EXPORT_NAME}.apk
   artifacts:
     name: "${EXPORT_NAME}-android-${CI_COMMIT_SHORT_SHA}"
     paths:
