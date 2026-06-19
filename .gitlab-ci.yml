@@ -9,13 +9,33 @@ variables:
   PACKAGE_VERSION: "0.1.0-build.${CI_PIPELINE_IID}"
 
 stages:
+  - mirror
   - export
   - upload
+
+# ─── Stage 0 : Mirror to GitHub ─────────────────────────────────────────────
+mirror_github:
+  stage: mirror
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git
+  script:
+    - |
+      if [ -z "$GITHUB_PAT" ]; then
+        echo "⚠️  GITHUB_PAT not set, skipping mirror"
+        exit 0
+      fi
+
+      echo "Mirroring to GitHub…"
+      git push --mirror "https://${GITHUB_PAT}@github.com/NeyZzO/pixel-war-remote.git"
+      echo "✅ Mirror push complete"
 
 # ─── Stage 1 : Build the APK ────────────────────────────────────────────────
 export_android:
   stage: export
   image: barichello/godot-ci:mono-${GODOT_VERSION}
+  only:
+    - main
   before_script:
     # --- Export templates (Mono) ---
     - mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
@@ -61,7 +81,15 @@ export_android:
       EOF
 
     # --- Install the Android build template (needed for gradle builds) ---
-    - mkdir -p android/build
+    - |
+      TEMPLATE_DIR=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
+      if [ -f "${TEMPLATE_DIR}/android_source.zip" ]; then
+        echo "Installing Android build template from export templates…"
+        unzip -o "${TEMPLATE_DIR}/android_source.zip" -d android/
+      else
+        echo "⚠️  android_source.zip not found in ${TEMPLATE_DIR}"
+        ls -la "${TEMPLATE_DIR}/" || true
+      fi
   script:
     # Let Godot import all assets (first run in editor mode, then quit)
     - godot --headless --quit --editor 2>&1 | tail -5 || true
@@ -87,6 +115,8 @@ export_android:
 upload_package:
   stage: upload
   image: curlimages/curl:latest
+  only:
+    - main
   needs:
     - export_android
   script:
