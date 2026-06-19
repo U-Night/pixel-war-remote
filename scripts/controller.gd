@@ -18,6 +18,16 @@ const POWERUP_TEXTURES: Dictionary = {
 	"grow": preload("res://assets/controller/powerup_grow.svg"),
 }
 
+# ──── Équipe ────
+var _bg_rect: ColorRect
+
+const TEAM_COLORS: Dictionary = {
+	0: Color("0A2345"),  # Blue
+	1: Color("460909"),  # Red
+	2: Color("00321C"),  # Green
+	3: Color("968C00"),  # Yellow
+}
+
 # ──── Throttle envoi joystick ────
 const SEND_INTERVAL: float = 0.05 # 20Hz
 var _send_timer: float = 0.0
@@ -31,6 +41,7 @@ func _ready() -> void:
 	joystick = $virtualJoystick
 	player_id_label = $playerId
 	power_up_icon = $powerUp/powerUpButton/powerUpIcon
+	_bg_rect = $ColorRect
 
 	# Écouter les signaux réseau
 	NetworkManager.connected.connect(_on_network_connected)
@@ -42,6 +53,10 @@ func _ready() -> void:
 		player_id_label.text = str(NetworkManager.player_id)
 	else:
 		player_id_label.text = "..."
+	
+	# Appliquer la couleur d'équipe si déjà assignée (le paquet arrive souvent avant le controller)
+	if NetworkManager.team_id >= 0 and NetworkManager.team_id in TEAM_COLORS:
+		_bg_rect.color = TEAM_COLORS[NetworkManager.team_id]
 
 	var udp_client = get_node("UDPClient") # adapte le chemin
 	udp_client.SetServerEndpoint(NetworkManager.server_address, NetworkManager.server_port)
@@ -135,6 +150,10 @@ func _on_packet_received(type: int, data: String) -> void:
 		var json = JSON.parse_string(data)
 		if json is Dictionary:
 			_handle_powerup_packet(json)
+	
+	# Gérer l'assignation d'équipe
+	if type == NetworkManager.PacketType.TeamAssignment and data != "":
+		_handle_team_assignment(data)
 
 
 # ──── Powerup ────
@@ -159,6 +178,19 @@ func _handle_powerup_packet(json: Dictionary) -> void:
 			print("[Controller] Powerup utilisé et confirmé par le serveur")
 
 
+# ──── Équipe ────
+
+func _handle_team_assignment(data: String) -> void:
+	# Format serveur : "TEAM_ASSIGNED:{0-3}"
+	if data.begins_with("TEAM_ASSIGNED:"):
+		var team_id_str = data.substr("TEAM_ASSIGNED:".length())
+		if team_id_str.is_valid_int():
+			var team_id = int(team_id_str)
+			if team_id in TEAM_COLORS:
+				_bg_rect.color = TEAM_COLORS[team_id]
+				print("[Controller] Équipe assignée: ", team_id, " -> couleur mise à jour")
+
+
 # ──── DEBUG : à retirer avant la release ────
 var _going_to_game_over: bool = false
 
@@ -181,6 +213,15 @@ func _input(event: InputEvent) -> void:
 			_handle_powerup_packet({"action": "grant", "powerup": "speed"})
 		elif event.keycode == KEY_KP_4:
 			_handle_powerup_packet({"action": "grant", "powerup": "grow"})
+		# ── Team debug (pavé numérique) ──
+		elif event.keycode == KEY_KP_5:
+			_handle_team_assignment("TEAM_ASSIGNED:0")
+		elif event.keycode == KEY_KP_6:
+			_handle_team_assignment("TEAM_ASSIGNED:1")
+		elif event.keycode == KEY_KP_7:
+			_handle_team_assignment("TEAM_ASSIGNED:2")
+		elif event.keycode == KEY_KP_8:
+			_handle_team_assignment("TEAM_ASSIGNED:3")
 
 
 # ──── Nettoyage ────

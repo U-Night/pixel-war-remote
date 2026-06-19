@@ -18,6 +18,7 @@ var player_id: int = -1
 var server_connected: bool = false
 var pending_error: String = ""  # Message d'erreur a afficher au retour au menu
 var game_over_type: String = ""  # "eliminated" ou "victory" — contexte pour l'écran game_over
+var team_id: int = -1  # ID d'équipe assignée par le serveur (0=Blue, 1=Red, 2=Green, 3=Yellow)
 
 # ──── Internes ────
 var _tcp: StreamPeerTCP = null
@@ -37,7 +38,8 @@ enum PacketType {
 	Message = 0x06,
 	Joystick = 0x07,
 	Disconnect = 0x08,
-	Powerup = 0x09
+	Powerup = 0x09,
+	TeamAssignment = 0x10
 }
 
 # Map string ↔ enum pour la sérialisation (le serveur C# envoie le nom en string)
@@ -51,6 +53,7 @@ const PACKET_TYPE_NAMES: Dictionary = {
 	"Joystick": PacketType.Joystick,
 	"Handshake": PacketType.Handshake,
 	"Powerup": PacketType.Powerup,
+	"TeamAssignment": PacketType.TeamAssignment,
 }
 
 func _get_packet_type_name(type: PacketType) -> String:
@@ -97,6 +100,7 @@ func disconnect_from_server() -> void:
 	server_connected = false
 	_handshake_done = false
 	player_id = -1
+	team_id = -1
 	_recv_buffer = PackedByteArray()
 	disconnected.emit()
 	print("[NetworkManager] Déconnecté")
@@ -230,7 +234,14 @@ func _get_packet_deserialized(raw_bytes: PackedByteArray) -> Dictionary:
 func _handle_packet_message(packet: Dictionary) -> void:
 	var type_val = packet.get("type", 0) 
 	var data_str = packet.get("data", "")
-
+	
+	# Intercepter TeamAssignment pour le stocker (arrive souvent avant que le controller soit chargé)
+	if type_val == PacketType.TeamAssignment and data_str.begins_with("TEAM_ASSIGNED:"):
+		var id_str = data_str.substr("TEAM_ASSIGNED:".length())
+		if id_str.is_valid_int():
+			team_id = int(id_str)
+			print("[NetworkManager] Équipe assignée: ", team_id)
+	
 	# Ta signature de signal doit maintenant envoyer un (int, String)
 	packet_received.emit(type_val, data_str)
 
