@@ -81,29 +81,27 @@ export_android:
       EOF
 
     # --- Install the Android build template (needed for gradle builds) ---
+    # Godot expects the template in res://android/build/ (same as editor's "Install Android Build Template")
     - apt-get update && apt-get install -y --no-install-recommends unzip || true
     - |
       TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono"
-      echo "Looking for android_source.zip in: ${TEMPLATE_DIR}"
-      ls -la "${TEMPLATE_DIR}/" 2>/dev/null | head -20 || echo "Directory not found!"
-
-      # Also check without .mono suffix (some images use this path)
       TEMPLATE_DIR_ALT="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
 
+      mkdir -p android/build
+
       if [ -f "${TEMPLATE_DIR}/android_source.zip" ]; then
-        echo "Found android_source.zip (mono path)"
-        unzip -o "${TEMPLATE_DIR}/android_source.zip" -d android/
+        echo "Installing Android build template (mono)…"
+        unzip -o "${TEMPLATE_DIR}/android_source.zip" -d android/build/
       elif [ -f "${TEMPLATE_DIR_ALT}/android_source.zip" ]; then
-        echo "Found android_source.zip (non-mono path)"
-        unzip -o "${TEMPLATE_DIR_ALT}/android_source.zip" -d android/
+        echo "Installing Android build template (non-mono)…"
+        unzip -o "${TEMPLATE_DIR_ALT}/android_source.zip" -d android/build/
       else
-        echo "⚠️  android_source.zip not found, searching everywhere…"
-        find "$HOME" -name "android_source.zip" 2>/dev/null || echo "Not found anywhere!"
+        echo "❌ android_source.zip not found!"
+        exit 1
       fi
 
-      echo "--- android/ directory contents ---"
-      ls -la android/ 2>/dev/null || echo "android/ directory does not exist!"
-      ls -la android/build/ 2>/dev/null || echo "android/build/ directory does not exist!"
+      echo "✅ Android build template installed"
+      ls android/build/build.gradle 2>/dev/null && echo "build.gradle found" || echo "⚠️ build.gradle missing!"
   script:
     # Let Godot import all assets (first run in editor mode, then quit)
     - godot --headless --quit --editor 2>&1 | tail -5 || true
