@@ -60,6 +60,14 @@ func _setup_visuals() -> void:
 		_subtitle_label.text = "Votre équipe a gagné !"
 		_subtitle_label.add_theme_color_override("font_color", Color(1.0, 0.93, 0.6))
 		_back_button.add_theme_color_override("font_color", Color(0.1, 0.08, 0.0))
+	elif NetworkManager.game_over_type == "draw":
+		# ── Égalité : fond gris sombre ──
+		_bg_rect.color = Color(0.15, 0.15, 0.15, 1.0)
+		_title_label.text = "ÉGALITÉ"
+		_title_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		_subtitle_label.text = "Vos équipes sont à égalité."
+		_subtitle_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		_back_button.add_theme_color_override("font_color", Color(0.1, 0.1, 0.1))
 	else:
 		# ── Élimination : fond rouge sombre ──
 		_bg_rect.color = Color(0.15, 0.02, 0.02, 1.0)
@@ -132,7 +140,21 @@ func _draw_particles() -> void:
 		Color(0.3, 0.02, 0.0), # Très sombre
 	]
 
-	var colors = victory_colors if is_victory else eliminated_colors
+	var draw_colors = [
+		Color(0.6, 0.6, 0.6),
+		Color(0.5, 0.5, 0.5),
+		Color(0.7, 0.7, 0.7),
+		Color(0.4, 0.4, 0.4),
+		Color(0.8, 0.8, 0.8),
+	]
+
+	var colors
+	if is_victory:
+		colors = victory_colors
+	elif NetworkManager.game_over_type == "draw":
+		colors = draw_colors
+	else:
+		colors = eliminated_colors
 
 	for p in _particles:
 		var col = colors[p["emoji_idx"]]
@@ -149,6 +171,12 @@ func _draw_particles() -> void:
 				center + Vector2(-s * 0.6, 0),
 			])
 			_emoji_container.draw_colored_polygon(points, col)
+		elif NetworkManager.game_over_type == "draw":
+			# Carré
+			var cx = p["x"]
+			var cy = p["y"]
+			var hs = s * 0.8
+			_emoji_container.draw_rect(Rect2(cx - hs, cy - hs, hs * 2, hs * 2), col)
 		else:
 			# Croix / X
 			var cx = p["x"]

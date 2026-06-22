@@ -140,7 +140,7 @@ func _on_packet_received(type: int, data: String) -> void:
 		var json = JSON.parse_string(data)
 		if json is Dictionary:
 			var msg_type = json.get("type", "")
-			if msg_type == "eliminated" or msg_type == "victory":
+			if msg_type == "eliminated" or msg_type == "victory" or msg_type == "draw":
 				NetworkManager.game_over_type = msg_type
 				_going_to_game_over = true
 				get_tree().change_scene_to_file("res://scenes/game_over.tscn")
