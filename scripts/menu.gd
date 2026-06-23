@@ -7,6 +7,7 @@ var _connect_timer: float = 0.0
 
 func _ready() -> void:
     DisplayServer.screen_set_orientation(DisplayServer.SCREEN_PORTRAIT)
+    get_window().content_scale_size = Vector2(720, 1290)
     NetworkManager.connected.connect(_on_network_connected)
     NetworkManager.connection_failed.connect(_on_connection_failed)
 
