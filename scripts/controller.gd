@@ -48,6 +48,10 @@ func _ready() -> void:
 	NetworkManager.disconnected.connect(_on_network_disconnected)
 	NetworkManager.packet_received.connect(_on_packet_received)
 
+	# Forcer les boutons à ignorer la souris pour notre gestion multi-touch manuelle
+	$powerUp/powerUpButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$ping/pingButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	# La connexion est deja etablie par le menu, afficher l'ID recu
 	if NetworkManager.player_id >= 0:
 		player_id_label.text = str(NetworkManager.player_id)
@@ -195,6 +199,23 @@ func _handle_team_assignment(data: String) -> void:
 var _going_to_game_over: bool = false
 
 func _input(event: InputEvent) -> void:
+	# ── Gestion multi-touch manuelle pour les boutons ──
+	var is_click = (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT)
+	
+	if is_click:
+		var power_up_btn = $powerUp/powerUpButton
+		var ping_btn = $ping/pingButton
+		
+		if power_up_btn.is_visible_in_tree() and power_up_btn.get_global_rect().has_point(event.position):
+			_on_power_up_pressed()
+			get_viewport().set_input_as_handled()
+			return
+			
+		if ping_btn.is_visible_in_tree() and ping_btn.get_global_rect().has_point(event.position):
+			_on_ping_pressed()
+			get_viewport().set_input_as_handled()
+			return
+
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_E:
 			NetworkManager.game_over_type = "eliminated"
